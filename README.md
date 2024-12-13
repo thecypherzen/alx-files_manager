@@ -20,7 +20,10 @@ Enjoy!
 
 ## Folder Details ###
 - **Date Created:** Wed Dec. 11 2024
-- **Author:** [William Inyam](https.//github.com/thecypherzen).
+- **Authors:** 
+  - [William Inyam](https.//github.com/thecypherzen)
+  - [Valentine Nyibiam](https.//github.com/valentinenyibiam)
+
 - **Project Timeline:**
 
 
