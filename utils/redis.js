@@ -1,7 +1,7 @@
 /* eslint-disable */
 const redis = require('redis');
 const { execSync } = require('child_process');
-const deasync = require('deasync');
+/* const deasync = require('deasync'); */
 const promisify = require('util').promisify;
 
 class RedisClient {
@@ -12,21 +12,20 @@ class RedisClient {
       .on('connect', () => {
         this.connected = true;
       });
-    this._waitInit(0.5);
+    /* this._waitInit(0.5); */
   }
 
   /**
    * @method (protected) _waitInit - waits for client to init
    * @param {number} - Number of seconds
    * @returns - undefined.
-   */
   _waitInit(timeout) {
     const startTime = Date.now();
     while(!this.connected && Date.now() - startTime < timeout) {
       deasync.runLoopOnce();
     }
   }
-
+  */
   /**
    * @method del - deletes a key from the database
    * @param {string} key - the key to delete
