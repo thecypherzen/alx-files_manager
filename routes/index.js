@@ -1,9 +1,12 @@
-import { Router } from 'express';
+import { Router, json } from 'express';
 import { getStatus, getStats } from '../controllers/AppController';
+import postNew from '../controllers/UsersController';
 
-console.log(getStatus);
 const router = Router();
+router.use(json());
+
 router.get('/status', getStatus);
 router.get('/stats', getStats);
+router.post('/users', postNew);
 
 export default router;
