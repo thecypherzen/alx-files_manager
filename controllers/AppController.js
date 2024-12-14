@@ -9,7 +9,7 @@ function getStatus(req, res) {
       {
         redis: redisClient.isAlive(),
         db: dbClient.isAlive(),
-      }
+      },
     );
   }
 }
