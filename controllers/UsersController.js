@@ -1,5 +1,9 @@
-import dbClient from '../utils/db';
-import createHash from '../shared';
+import { dbClient } from '../utils';
+import { createHash, dbUtils } from '../shared';
+
+async function getMe(req, res) {
+  console.log('getMe called...');
+}
 
 async function postNew(req, res) {
   // ensure data was sent
@@ -33,4 +37,4 @@ async function postNew(req, res) {
   }
 }
 
-export default postNew;
+export { getMe, postNew };
