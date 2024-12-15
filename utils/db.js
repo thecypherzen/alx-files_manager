@@ -17,12 +17,8 @@ class DBClient {
         this.connected = true;
       });
 
-    // Connect the client to server
-    try {
-      this.client.connect();
-    } catch (err) {
-      console.log(err.message);
-    }
+ // Connect the client to server
+    this.client.connect()
   }
 
   /**
