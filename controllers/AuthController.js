@@ -1,8 +1,10 @@
 import { v4 as uuid4 } from 'uuid';
 import { cache, createHash, dbUtils } from '../shared';
 
+// log user in
 async function getConnect(req, res) {
- let authorization = req.get('authorization');
+  // fetch auth
+  let authorization = req.get('authorization');
   if (!authorization) {
     return res.status(401)
       .send({ error: 'Unauthorized' });
@@ -23,11 +25,23 @@ async function getConnect(req, res) {
 
   const authToken = uuid4();
   const key = `auth_${authToken}`;
-  const value = await cache.set(key, user._id.toString(), 86400);
-  console.log('set response: ', value);
-
+  await cache.set(key, user._id.toString(), 86400);
   return res.send({ token: authToken });
 }
 
+// log user out
+async function getDisconnect(req, res) {
+  const token = req.get('x-token');
+  const userId = await cache.getUserId(`auth_${token}`);
+  if (!userId) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+  const user = await dbUtils.getUserById(userId);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+  await cache.delete(`auth_${token}`);
+  return res.status(204).send('');
+}
 
 export { getConnect, getDisconnect };

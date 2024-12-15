@@ -11,14 +11,14 @@ const dbUtils = {
     const db = dbClient.client.db(dbClient.db);
     const collection = db.collection('users');
     const user = await collection.findOne(credentials);
+    console.log('getUserByCred: ',user);
     return user;
   },
 
-  getUserById: async(id) => {
+  getUserById: async (id) => {
     const db = dbClient.client.db(dbClient.db);
     const collection = db.collection('users');
-    const userId = new ObjectId(id);
-    const user = await collection.findOne({ _id: userId });
+    const user = await collection.findOne({ _id: new ObjectId(id) });
     return user;
   },
 };
@@ -27,6 +27,16 @@ const cache = {
   set: async (key, value, duration) => {
     const res = await redisClient.set(key, value, duration);
     return res;
+  },
+
+  delete: async (key) => {
+    const res = await redisClient.del(key);
+    return res;
+  },
+
+  getUserId: async (key) => {
+    const userId = await redisClient.get(key);
+    return userId;
   },
 };
 
