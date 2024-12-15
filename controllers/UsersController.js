@@ -11,6 +11,7 @@ import { cache, createHash, dbUtils } from '../shared';
  * a custom error object.
  */
 async function getMe(req, res) {
+  console.log("getme called");
   const token = req.get('x-token');
   // check user exists
   // case not exists
