@@ -15,7 +15,7 @@ async function getConnect(req, res) {
     .toString('utf-8');
   const [email, password] = authorization.split(':');
   if (!email || !password) {
-    return res.send({ error: 'Unauthorized' });
+    return res.status(401).send({ error: 'Unauthorized' });
   }
   const pwdHash = createHash(password);
   const user = await dbUtils.getUserByCred(
