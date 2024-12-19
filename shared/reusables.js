@@ -9,6 +9,25 @@ function createHash(data, type = 'sha1') {
 
 // database utilities
 const dbUtils = {
+
+  addDocument: async (data) => {
+    const db = dbClient.client(dbClient.db);
+    const files = db.collection('files');
+    const result = await files.insertOne(data);
+    return result;
+  },
+
+  /**
+   * @function counDocumentsIn - counts files in a folder
+   * @param { string | number }
+   */
+  getFolder: async (parentId) => {
+    const db = dbClient.client(dbClient.db);
+    const collection = db.collection('files');
+    const folder = await collection.find({ parentId });
+    return Array.from(folder);
+  },
+
   /**
    * @function getUserByCred - gets a user from database based on
    * credentials
@@ -78,4 +97,21 @@ const cache = {
   },
 };
 
-export { cache, createHash, dbUtils };
+async function getUserFromToken(req) {
+  const token = req.get('x-token');
+  if (!token) {
+    return ({ error: true });
+  }
+  const userId = await cache.getUserId(`auth_${token}`);
+
+  if (!userId) {
+    return ({ error: true });
+  }
+
+  const user = await dbUtils.getUserById(userId);
+  return user;
+}
+
+export {
+  cache, createHash, dbUtils, getUserFromToken,
+};

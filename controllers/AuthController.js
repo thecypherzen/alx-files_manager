@@ -14,6 +14,9 @@ async function getConnect(req, res) {
   authorization = Buffer.from(authorization, 'base64')
     .toString('utf-8');
   const [email, password] = authorization.split(':');
+  if (!email || !password) {
+    return res.send({ error: 'Unauthorized' });
+  }
   const pwdHash = createHash(password);
   const user = await dbUtils.getUserByCred(
     { email, password: pwdHash },
@@ -33,6 +36,7 @@ async function getConnect(req, res) {
 async function getDisconnect(req, res) {
   const token = req.get('x-token');
   const userId = await cache.getUserId(`auth_${token}`);
+  console.log(userId);
   if (!userId) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
@@ -44,4 +48,12 @@ async function getDisconnect(req, res) {
   return res.status(204).send('');
 }
 
-export { getConnect, getDisconnect };
+// the auth route middleware.
+async function authController(req, res) {
+  if (req.baseUrl === '/connect') {
+    return getConnect(req, res);
+  }
+  return getDisconnect(req, res);
+}
+
+export default authController;

@@ -1,17 +1,11 @@
-import { Router, json } from 'express';
-import {
-  getConnect, getDisconnect, getStatus, getMe,
-  getStats, postNew,
-} from '../controllers';
+import filesRouter from './files';
+import appRouter from './app';
+import usersRouter from './users';
+import authRouter from './auth';
 
-const router = Router();
-router.use(json());
-
-router.get('/status', getStatus);
-router.get('/stats', getStats);
-router.post('/users', postNew);
-router.get('/users/me', getMe);
-router.get('/connect', getConnect);
-router.get('/disconnect', getDisconnect);
-
-export default router;
+export {
+  authRouter,
+  appRouter,
+  filesRouter,
+  usersRouter,
+};

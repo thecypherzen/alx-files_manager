@@ -22,4 +22,11 @@ function getStats(req, res) {
   })();
 }
 
-export { getStatus, getStats };
+function appController(req, res) {
+  if (req.baseUrl === '/stats') {
+    return getStats(req, res);
+  }
+  return getStatus(req, res);
+}
+
+export default appController;

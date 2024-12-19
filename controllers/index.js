@@ -1,3 +1,11 @@
-export { getStatus, getStats } from './AppController';
-export { getMe, postNew } from './UsersController';
-export { getConnect, getDisconnect } from './AuthController';
+import postUpload from './FilesController';
+import appController from './AppController';
+import { getMe, postNew } from './UsersController';
+import authController from './AuthController';
+
+export {
+  appController,
+  authController,
+  getMe, postNew,
+  postUpload,
+};

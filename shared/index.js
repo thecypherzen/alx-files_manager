@@ -1,1 +1,3 @@
-export { cache, createHash, dbUtils } from './reusables';
+export {
+  cache, createHash, dbUtils, getUserFromToken,
+} from './reusables';

@@ -11,7 +11,6 @@ import { cache, createHash, dbUtils } from '../shared';
  * a custom error object.
  */
 async function getMe(req, res) {
-  console.log("getme called");
   const token = req.get('x-token');
   // check user exists
   // case not exists
@@ -34,13 +33,15 @@ async function getMe(req, res) {
  * @param { object } req - the incoming request object
  * @param { object } res - the outgoing response object
  * @returns { object } - the response object such that:
- *   - A custom error object is sent if  none or partial credentials were sent, a user with email already exists or an error occured
+ *   - A custom error object is sent if  none or partial credentials
+ *     were sent, a user with email already exists or an error occured
  *     while performing a write into the database.
  *   - A response object with payload containing new user's
  *     email and id.
  *
  */
 async function postNew(req, res) {
+  console.log('creating new user');
   // ensure data was sent
   if (!req.body || !req.body.email) {
     return res.status(400).send({ error: 'Missing email' });
