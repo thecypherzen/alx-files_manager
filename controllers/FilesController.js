@@ -71,7 +71,7 @@ async function fileUpload(req, res) {
     if (!folder) {
       return res.status(400).send({ error: 'Parent not found' });
     }
-    if (!folder.type !== 'folder') {
+    if (folder.type !== 'folder') {
       return res.status(400).send({ error: 'Parent is not a folder' });
     }
   }
