@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { dbClient, redisClient } from '../utils';
+import { ObjectId } from 'mongodb';
 
 // hash creating function
 function createHash(data, type = 'sha1') {
@@ -97,8 +98,9 @@ async function getUserFromToken(req) {
     return ({ error: true });
   }
 
-  const user = await dbUtils.getItemById(userId);
-  return user;
+  const user = await dbUtils
+    .getItemsByCred({ _id: new ObjectId(userId) });
+  return user[0];
 }
 
 export {
