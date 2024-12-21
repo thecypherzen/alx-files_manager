@@ -144,7 +144,7 @@ async function fileUpload(req, res) {
  */
 async function getIndex(req, res) {
   const user = await getUserFromToken(req);
-  if (!user) {
+  if (user.error) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
   const parentId = req.query.parentId || 0;
@@ -175,7 +175,7 @@ async function getIndex(req, res) {
  */
 async function getShow(req, res) {
   const user = await getUserFromToken(req);
-  if (!user) {
+  if (user.error) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
   const pipeLine = [
