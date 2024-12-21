@@ -1,4 +1,5 @@
 import { v4 as uuid4 } from 'uuid';
+import { ObjectId } from 'mongodb';
 import { writeFile, mkdir } from 'fs';
 import path from 'path';
 import { dbUtils, getUserFromToken } from '../shared';
@@ -124,4 +125,53 @@ async function fileUpload(req, res) {
   });
 }
 
-export default fileUpload;
+/**
+ * @function getIndex - retrieve all users file documents for a
+ * specific parentId and with pagination:
+ * @param { object } req - incoming request object
+ * @param { object } res  outgoing response objct
+ * @returns { object } - modified response object
+ * - If no user found based on token, the payload returned is
+ *   an object with value `Unauthorized` and status 401
+ * - Based on query parameters `parentid` and `page`:
+ *   - pageId defaults to 0 by default
+ *   - if the `parentId` is not linked to any user folder, returns
+ *     an empty list
+ *   - each page is 20 items max
+ *   - page query parameter starts at 0 for the first page.
+ *     If equals to 1, it means it’s the second page.
+ *   - pagination can be done directly by the aggregate of MongoDB
+ */
+async function getIndex(req, res) {
+  // get all files
+}
+
+/**
+ * @function getShow - retrieves a file document based on id
+ * - Uses user token to id requesting user
+ * @param { object } req - the incoming request object
+ * @param { object } res - the outgoing response object
+ * @returns { object }:
+ * - An error object with value `Unauthorized` and status code 401.
+ *   if no valid user is found.
+ * - An error object with value `Not found` and status code 404 if no
+ *   file document is linked to the user and the ID passed as request
+ *   parameter.
+ */
+async function getShow(req, res) {
+  const user = await getUserFromToken(req);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+  const credentials = {
+    userId: user._id,
+    _id: new ObjectId(req.params.id),
+  };
+  const items = await dbUtils.getItemsByCred(credentials, 'files');
+  if (!items.length || items.length > 1) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+  return res.send(items[0]);
+}
+
+export { fileUpload, getIndex, getShow };

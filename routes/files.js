@@ -1,8 +1,10 @@
 import { Router, json } from 'express';
-import { fileUpload } from '../controllers';
+import { fileUpload, getIndex, getShow } from '../controllers';
 
-const filesRouter = Router();
-filesRouter.use(json());
-filesRouter.post('/', fileUpload);
+const router = Router();
+router.use(json());
+router.post('/', fileUpload);
+router.get('/', getIndex);
+router.get('/:id', getShow);
 
-export default filesRouter;
+export default router;

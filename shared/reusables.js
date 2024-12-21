@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { ObjectId } from 'mongodb';
 import { dbClient, redisClient } from '../utils';
 
 // hash creating function
@@ -25,38 +24,25 @@ const dbUtils = {
   getDocumentsIn: async (parentId) => {
     const db = dbClient.client.db(dbClient.db);
     const collection = db.collection('files');
-    const folder = await collection.find({ parentId });
-    return Array.from(folder);
+    const folder = await collection.find({ parentId }).toArray();
+    return folder;
   },
 
   /**
-   * @function getUserByCred - gets a user from database based on
+   * @function getItemsByCred - gets a user from database based on
    * credentials
    * @param { object } credentials - an object of credentials to use.
+   * @param { string } coll - the collection to fetch from
    * @returns { object } - a promise that resolves to the found
    * user or null.
    */
-  getUserByCred: async (credentials) => {
-    const db = dbClient.client.db(dbClient.db);
-    const collection = db.collection('users');
-    const user = await collection.findOne(credentials);
-    return user;
-  },
-
-  /**
-   * @function getUserById - retrieves a user from the database
-   * based on user's id only.
-   * @param {string} id - the user's id string
-   * @returns {object} - a promise that resolves to the found user
-   * or null.
-   */
-  getItemById: async (id, coll = 'users') => {
+  getItemsByCred: async (credentials, coll = 'users') => {
     const db = dbClient.client.db(dbClient.db);
     const collection = coll === 'users'
       ? db.collection('users')
       : db.collection('files');
-    const item = await collection.findOne({ _id: new ObjectId(id) });
-    return item;
+    const files = await collection.find(credentials).toArray();
+    return files;
   },
 };
 
