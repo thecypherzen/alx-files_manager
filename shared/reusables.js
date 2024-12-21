@@ -9,20 +9,21 @@ function createHash(data, type = 'sha1') {
 
 // database utilities
 const dbUtils = {
-
-  addDocument: async (data) => {
-    const db = dbClient.client(dbClient.db);
-    const files = db.collection('files');
-    const result = await files.insertOne(data);
+  addDocument: async (data, coll = 'users') => {
+    const db = dbClient.client.db(dbClient.db);
+    const collection = coll === 'users'
+      ? db.collection('users')
+      : db.collection('files');
+    const result = await collection.insertOne(data);
     return result;
   },
 
   /**
-   * @function counDocumentsIn - counts files in a folder
+   * @function getDocumentsIn - counts files in a folder
    * @param { string | number }
    */
-  getFolder: async (parentId) => {
-    const db = dbClient.client(dbClient.db);
+  getDocumentsIn: async (parentId) => {
+    const db = dbClient.client.db(dbClient.db);
     const collection = db.collection('files');
     const folder = await collection.find({ parentId });
     return Array.from(folder);
@@ -49,11 +50,13 @@ const dbUtils = {
    * @returns {object} - a promise that resolves to the found user
    * or null.
    */
-  getUserById: async (id) => {
+  getItemById: async (id, coll = 'users') => {
     const db = dbClient.client.db(dbClient.db);
-    const collection = db.collection('users');
-    const user = await collection.findOne({ _id: new ObjectId(id) });
-    return user;
+    const collection = coll === 'users'
+      ? db.collection('users')
+      : db.collection('files');
+    const item = await collection.findOne({ _id: new ObjectId(id) });
+    return item;
   },
 };
 
@@ -108,7 +111,7 @@ async function getUserFromToken(req) {
     return ({ error: true });
   }
 
-  const user = await dbUtils.getUserById(userId);
+  const user = await dbUtils.getItemById(userId);
   return user;
 }
 
