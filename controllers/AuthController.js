@@ -18,10 +18,9 @@ async function getConnect(req, res) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
   const pwdHash = createHash(password);
-  const user = await dbUtils.getUserByCred(
+  const [user] = await dbUtils.getItemsByCred(
     { email, password: pwdHash },
   );
-
   if (!user) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
@@ -36,7 +35,6 @@ async function getConnect(req, res) {
 async function getDisconnect(req, res) {
   const token = req.get('x-token');
   const userId = await cache.getUserId(`auth_${token}`);
-  console.log(userId);
   if (!userId) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
