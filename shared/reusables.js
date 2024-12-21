@@ -1,6 +1,6 @@
+import { ObjectId } from 'mongodb';
 import crypto from 'crypto';
 import { dbClient, redisClient } from '../utils';
-import { ObjectId } from 'mongodb';
 
 // hash creating function
 function createHash(data, type = 'sha1') {
@@ -15,6 +15,15 @@ const dbUtils = {
       ? db.collection('users')
       : db.collection('files');
     const result = await collection.insertOne(data);
+    return result;
+  },
+
+  aggregate: async (pipeLine, coll = 'users') => {
+    const db = dbClient.client.db(dbClient.db);
+    const collection = coll === 'users'
+      ? db.collectin('users')
+      : db.collection('files');
+    const result = await collection.aggregate(pipeLine).toArray();
     return result;
   },
 

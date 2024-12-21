@@ -143,7 +143,22 @@ async function fileUpload(req, res) {
  *   - pagination can be done directly by the aggregate of MongoDB
  */
 async function getIndex(req, res) {
-  // get all files
+  const user = await getUserFromToken(req);
+  if (!user) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+  const parentId = req.query.parentId || 0;
+  const page = req.query.page ? Number(req.query.page) : 0;
+  const pipeLine = [
+    { $match: { parentId, userId: user._id.toString() } },
+    { $sort: { _id: 1 } },
+    { $skip: page * 20 },
+    { $limit: 20 },
+    { $addFields: { id: '$_id' } },
+    { $unset: '_id' },
+  ];
+  const result = await dbUtils.aggregate(pipeLine, 'files');
+  return res.send(result);
 }
 
 /**
@@ -163,11 +178,17 @@ async function getShow(req, res) {
   if (!user) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
-  const credentials = {
-    userId: user._id,
-    _id: new ObjectId(req.params.id),
-  };
-  const items = await dbUtils.getItemsByCred(credentials, 'files');
+  const pipeLine = [
+    {
+      $match: {
+        _id: new ObjectId(req.params.id),
+        userId: user._id.toString(),
+      },
+    },
+    { $addFields: { id: '$_id' } },
+    { $unset: '_id' },
+  ];
+  const items = await dbUtils.aggregate(pipeLine, 'files');
   if (!items.length || items.length > 1) {
     return res.status(404).send({ error: 'Not found' });
   }
