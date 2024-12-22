@@ -23,6 +23,7 @@ const dbUtils = {
     const collection = coll === 'users'
       ? db.collectin('users')
       : db.collection('files');
+    console.log(pipeLine);
     const result = await collection.aggregate(pipeLine).toArray();
     return result;
   },
