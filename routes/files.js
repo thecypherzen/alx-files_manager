@@ -1,7 +1,7 @@
 import { Router, json } from 'express';
 import {
   fileUpload, getIndex,
-  getShow, putPublish,
+  getShow, putPubUnpulish,
 } from '../controllers';
 
 const router = Router();
@@ -9,6 +9,6 @@ router.use(json());
 router.post('/', fileUpload);
 router.get('/', getIndex);
 router.get('/:id', getShow);
-router.get('/:id/publish', putPublish);
+router.put(['/:id/publish', '/:id/unpublish'], putPubUnpulish);
 
 export default router;

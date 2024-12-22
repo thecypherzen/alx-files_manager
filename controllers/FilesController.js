@@ -211,11 +211,13 @@ async function getShow(req, res) {
  *   set status code to 404 with message 'Not found'
  * - otherwise, updates the document's isPublic value and returns it.
  */
-async function putPublish(req, res) {
+async function putPubUnpulish(req, res) {
   const user = await getUserFromToken(req);
   if (user.error) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
+  const path = req.path.split('/');
+  const endpoint = path[path.length - 1];
   const pipeLine = [
     {
       $match: {
@@ -223,7 +225,7 @@ async function putPublish(req, res) {
         userId: user._id,
       },
     },
-    { $set: { isPublic: true } },
+    { $set: { isPublic: endpoint === 'publish' } },
     { $addFields: { id: '$_id' } },
     { $unset: '_id' },
   ];
@@ -232,7 +234,7 @@ async function putPublish(req, res) {
     return res.status(404).send({ error: 'Not found' });
   }
   const filter = { _id: result[0].id };
-  const update = { $set: { isPublic: true } };
+  const update = { $set: { isPublic: endpoint === 'publish' } };
   await dbUtils.updateOne(
     { filter, update, coll: 'files' },
   );
@@ -240,5 +242,5 @@ async function putPublish(req, res) {
 }
 
 export {
-  fileUpload, getIndex, getShow, putPublish,
+  fileUpload, getIndex, getShow, putPubUnpulish,
 };

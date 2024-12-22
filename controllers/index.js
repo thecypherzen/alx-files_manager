@@ -2,7 +2,7 @@ import {
   fileUpload,
   getIndex,
   getShow,
-  putPublish,
+  putPubUnpulish,
 } from './FilesController';
 
 import appController from './AppController';
@@ -12,5 +12,5 @@ import authController from './AuthController';
 export {
   appController, authController,
   getMe, postNew, fileUpload,
-  getIndex, getShow, putPublish,
+  getIndex, getShow, putPubUnpulish,
 };
