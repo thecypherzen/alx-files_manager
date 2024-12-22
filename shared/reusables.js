@@ -9,6 +9,14 @@ function createHash(data, type = 'sha1') {
 
 // database utilities
 const dbUtils = {
+  /**
+   * @async
+   * @function addDocument - adds a document to a collection in mongodb
+   * @param { Object } data - object matching document schema
+   * @param { string } coll - the collection to add document
+   *
+   * @eturns { Object } - mongodb insertOne response object
+   */
   addDocument: async (data, coll = 'users') => {
     const db = dbClient.client.db(dbClient.db);
     const collection = coll === 'users'
@@ -18,6 +26,14 @@ const dbUtils = {
     return result;
   },
 
+  /**
+   * @async
+   * @function aggregate - executes an aggregate pipeline on a db collection
+   * @param { Object<bson> } pipeLine - the pipeline
+   * @param { string } coll - the collection to execute aggreagation in
+   *
+   * @returns { Array<bson> } - array of bson objects matching aggregate function
+   */
   aggregate: async (pipeLine, coll = 'users') => {
     const db = dbClient.client.db(dbClient.db);
     const collection = coll === 'users'
@@ -118,6 +134,14 @@ const cache = {
   },
 };
 
+/**
+ * @async
+ * @function getUserFromToken - retrieves a user object from the db based on token
+ * @param { Object<express.request> } req - express request object
+ *
+ * @returns { Object<bson|object> } - the user object on success or
+ *  error object on any failure
+ */
 async function getUserFromToken(req) {
   const token = req.get('x-token');
   if (!token) {
