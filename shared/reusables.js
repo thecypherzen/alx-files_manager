@@ -54,6 +54,17 @@ const dbUtils = {
     const files = await collection.find(credentials).toArray();
     return files;
   },
+
+  updateOne: async ({
+    filter, update, coll = 'users', options = null,
+  }) => {
+    const db = dbClient.client.db(dbClient.db);
+    const collection = coll === 'users'
+      ? db.collection('users')
+      : db.collection('files');
+    const result = await collection.updateOne(filter, update, options);
+    return result;
+  },
 };
 
 // cache utilities

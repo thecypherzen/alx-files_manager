@@ -199,4 +199,34 @@ async function getShow(req, res) {
   return res.send(items[0]);
 }
 
-export { fileUpload, getIndex, getShow };
+async function putPublish(req, res) {
+  const user = await getUserFromToken(req);
+  if (user.error) {
+    return res.status(401).send({ error: 'Unauthorized' });
+  }
+  const pipeLine = [
+    {
+      $match: {
+        _id: ObjectId(req.params.id),
+        userId: user._id,
+      },
+    },
+    { $set: { isPublic: true } },
+    { $addFields: { id: '$_id' } },
+    { $unset: '_id' },
+  ];
+  const result = await dbUtils.aggregate(pipeLine, 'files');
+  if (!result.length || result.length > 1) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+  const filter = { _id: result[0].id };
+  const update = { $set: { isPublic: true } };
+  await dbUtils.updateOne(
+    { filter, update, coll: 'files' },
+  );
+  return res.send(result[0]);
+}
+
+export {
+  fileUpload, getIndex, getShow, putPublish,
+};
