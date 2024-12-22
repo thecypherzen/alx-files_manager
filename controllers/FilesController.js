@@ -147,7 +147,9 @@ async function getIndex(req, res) {
   if (user.error) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
-  const parentId = req.query.parentId || '0';
+  const parentId = req.query.parentId
+    ? new ObjectId(req.query.parentId)
+    : '0';
   const page = req.query.page ? Number(req.query.page) : 0;
   const pipeLine = [
     { $match: { parentId, userId: user._id } },
@@ -178,7 +180,6 @@ async function getShow(req, res) {
   if (user.error) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
-  console.log(user._id);
   const pipeLine = [
     {
       $match: {
