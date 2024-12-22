@@ -134,7 +134,8 @@ async function fileUpload(req, res) {
  * @param { Object<express.request> } req - incoming request object
  * @param { Object<express.response> } res - outgoing response object
  * @returns { Object<express.response> } - modified response object such that:
- * - If no file document is linked to the ID passed as parameter, sets status code to 404 with error object with message 'Not found'
+ * - If no file document is linked to the ID passed as parameter, sets
+ *   status code to 404 with error object with message 'Not found'
  * - If the doc is private and user is not authenticated or is not
  *   the owner, sets status code to 404 with error object with message
  *   'Not found'
@@ -160,7 +161,6 @@ async function getFile(req, res) {
   if (!file.isPublic
       && (user.error
           || file.userId.toString() !== user._id.toString())) {
-    console.log(`isPublic: ${file.isPublic}\nuser.userId(${user._id || 'none'})\nuserId matches: ${file.userId === user._id})`);
     return res.status(404).send({ error: 'Not found' });
   }
 
@@ -170,7 +170,7 @@ async function getFile(req, res) {
   }
   return readFile(file.localPath, (err, data) => {
     if (err) {
-      res.status(404).send({ error: 'Not found' });
+      return res.status(404).send({ error: 'Not found' });
     }
     res.setHeader('Content-Type', lookup(file.name));
     return res.send(data);
