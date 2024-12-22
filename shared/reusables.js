@@ -55,6 +55,17 @@ const dbUtils = {
     return files;
   },
 
+  /**
+   * @async
+   * @function updateOne - updates one db document
+   * @param { Object } specs - specifications to perform update by
+   * @param { Object } specs.filter - the filter to match document by
+   * @param { Object } specs.update - the fields to update and thie values
+   * @param { string } speccs.coll - the collection to search
+   * @param { Object } specs.options - other options passed to the mongoClient.updateOne function
+   *
+   * @returns { Object } - the mongodb client update response object
+   */
   updateOne: async ({
     filter, update, coll = 'users', options = null,
   }) => {
