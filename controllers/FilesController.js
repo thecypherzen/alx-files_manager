@@ -199,6 +199,18 @@ async function getShow(req, res) {
   return res.send(items[0]);
 }
 
+/**
+ * @function putPublish - updates a file document's isPublic value
+ * to `true` based on id parameter
+ * @param { object } req - the request object
+ * @param { object } res - the response object
+ * @returns { object } - modified response object such that:
+ * - if no user found based on token, set status code to 401 and
+ *   payload to error object with message 'Unauthorized';
+ * - if no document is linked with user and id passed as parameter,
+ *   set status code to 404 with message 'Not found'
+ * - otherwise, updates the document's isPublic value and returns it.
+ */
 async function putPublish(req, res) {
   const user = await getUserFromToken(req);
   if (user.error) {
