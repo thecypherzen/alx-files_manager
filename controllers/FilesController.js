@@ -150,7 +150,7 @@ async function getIndex(req, res) {
   const parentId = req.query.parentId || 0;
   const page = req.query.page ? Number(req.query.page) : 0;
   const pipeLine = [
-    { $match: { parentId, userId: user._id.toString() } },
+    { $match: { parentId, userId: user._id } },
     { $sort: { _id: 1 } },
     { $skip: page * 20 },
     { $limit: 20 },
@@ -182,7 +182,7 @@ async function getShow(req, res) {
     {
       $match: {
         _id: new ObjectId(req.params.id),
-        userId: user._id.toString(),
+        userId: user._id,
       },
     },
     { $addFields: { id: '$_id' } },
