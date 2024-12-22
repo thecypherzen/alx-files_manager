@@ -78,9 +78,11 @@ async function fileUpload(req, res) {
   }
 
   const newFile = {
-    parentId: req.body.parentId || '0',
+    parentId: req.body.parentId
+      ? new ObjectId(req.body.parentId)
+      : '0',
     isPublic: req.body.isPublic || false,
-    userId: user._id.toString(),
+    userId: new ObjectId(user._id.toString()),
     type: req.body.type,
     name: req.body.name,
   };
