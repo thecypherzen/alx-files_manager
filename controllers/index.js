@@ -1,5 +1,6 @@
 import {
   fileUpload,
+  getFile,
   getIndex,
   getShow,
   putPubUnpulish,
@@ -11,6 +12,6 @@ import authController from './AuthController';
 
 export {
   appController, authController,
-  getMe, postNew, fileUpload,
+  getMe, postNew, fileUpload, getFile,
   getIndex, getShow, putPubUnpulish,
 };

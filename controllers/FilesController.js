@@ -1,6 +1,7 @@
 import { v4 as uuid4 } from 'uuid';
 import { ObjectId } from 'mongodb';
-import { writeFile, mkdir } from 'fs';
+import { lookup } from 'mime-types';
+import { readFile, writeFile, mkdir } from 'fs';
 import path from 'path';
 import { dbUtils, getUserFromToken } from '../shared';
 
@@ -128,6 +129,55 @@ async function fileUpload(req, res) {
 }
 
 /**
+ * @async
+ * @function getFile - fetches content of a document in db based on id
+ * @param { Object<express.request> } req - incoming request object
+ * @param { Object<express.response> } res - outgoing response object
+ * @returns { Object<express.response> } - modified response object such that:
+ * - If no file document is linked to the ID passed as parameter, sets status code to 404 with error object with message 'Not found'
+ * - If the doc is private and user is not authenticated or is not
+ *   the owner, sets status code to 404 with error object with message
+ *   'Not found'
+ * - If document is a folder, payload is an error object with message
+ *   `A folder doesn't have content` and status code is 400
+ * - If file is not locally present, payload is an error object with
+ *   message `Not found` and status code 404
+ * - Otherwise, the payload is the document's content, with mime-type
+ *   set based on file extension.
+ */
+async function getFile(req, res) {
+  const user = await getUserFromToken(req);
+  const pipeLine = [
+    { $match: { _id: new ObjectId(req.params.id) } },
+    { $addFields: { id: '$_id' } },
+    { $unset: '_id' },
+  ];
+  const [file] = await dbUtils.aggregate(pipeLine, 'files');
+  if (!file) {
+    return res.status(404).send({ error: 'Not found' });
+  }
+  // validate user is owner
+  if (!file.isPublic
+      && (user.error
+          || file.userId.toString() !== user._id.toString())) {
+    console.log(`isPublic: ${file.isPublic}\nuser.userId(${user._id || 'none'})\nuserId matches: ${file.userId === user._id})`);
+    return res.status(404).send({ error: 'Not found' });
+  }
+
+  // handle type folder
+  if (file.type === 'folder') {
+    return res.status(400).send({ error: 'A folder doesn\'t have content' });
+  }
+  return readFile(file.localPath, (err, data) => {
+    if (err) {
+      res.status(404).send({ error: 'Not found' });
+    }
+    res.setHeader('Content-Type', lookup(file.name));
+    return res.send(data);
+  });
+}
+
+/**
  * @function getIndex - retrieve all users file documents for a
  * specific parentId and with pagination:
  * @param { object } req - incoming request object
@@ -242,5 +292,6 @@ async function putPubUnpulish(req, res) {
 }
 
 export {
-  fileUpload, getIndex, getShow, putPubUnpulish,
+  fileUpload, getFile, getIndex,
+  getShow, putPubUnpulish,
 };
