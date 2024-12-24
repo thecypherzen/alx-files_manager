@@ -119,25 +119,24 @@ async function fileUpload(req, res) {
 
   // write content to file and return response
   return writeFile(filePath, content, (err) => {
-    console.log('writing file');
     if (err) {
       return res.status(500)
         .send({ error: err.message });
     }
+    // save document to db
     newFile.localPath = filePath;
     dbUtils
       .addDocument(newFile, 'files')
       .then(() => {
-        console.log('newfile added:', newFile);
         if (newFile.type === 'image') {
-          console.log('adding job to queue');
+          // schedule thumbnail generator
           fileQueue.add('makeThumbnail', {
             userId: newFile.userId.toString(),
             fileId: newFile._id.toString(),
           }).then((job) => {
-            console.log('new job added:', job.id);
+            job.log(`job(${job.id}) scheduled successfully`);
           }).catch((err) => {
-            console.log('adding new job failed with err:\n', err);
+            console.error('adding new job failed with err:\n', err);
           });
         }
         res.status(201).send(updateObjectKey(newFile));
@@ -187,7 +186,12 @@ async function getFile(req, res) {
   if (file.type === 'folder') {
     return res.status(400).send({ error: 'A folder doesn\'t have content' });
   }
-  return readFile(file.localPath, (err, data) => {
+  let filePath = file.localPath;
+  const { size } = req.query;
+  if (size) {
+    filePath += `_${size}`;
+  }
+  return readFile(filePath, (err, data) => {
     if (err) {
       return res.status(404).send({ error: 'Not found' });
     }
