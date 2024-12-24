@@ -5,11 +5,18 @@ import { ObjectId } from 'mongodb';
 import { dbUtils } from './shared';
 
 const fileQueue = new Bull('fileQueue');
+const userQueue = new Bull('userQueue');
 
 // Queue Events
 fileQueue.on('global:active', async (jobId) => {
   const job = await fileQueue.getJob(jobId);
   job.log(`worker job: ${jobId} started.`);
+});
+
+userQueue.on('global:active', async (jobId) => {
+  const job = await userQueue.getJob(jobId);
+  job.log(`worker job: ${jobId} started:`,
+    new Date().toISOString());
 });
 
 fileQueue.on('global:completed', async (jobId) => {
@@ -19,15 +26,20 @@ fileQueue.on('global:completed', async (jobId) => {
 
 fileQueue.on('global:error', async (jobId, err) => {
   const job = await fileQueue.getJob(jobId);
-  job.log(`worker job: ${jobId} failed.Messae: ${err.message}.`);
+  job.log(`worker job: ${jobId} failed.Messae: ${err}.`);
 });
 
 fileQueue.on('global:failed', async (jobId, err) => {
   const job = await fileQueue.getJob(jobId);
-  job.log(`worker job: ${jobId} failed. Message: ${err.message}`);
+  job.log(`worker job: ${jobId} failed. Message: ${err}`);
 });
 
-// Worker process
+userQueue.on('global:failed', async (jobId, err) => {
+  console.log(`user worker job ${jobId} failed. Message:`,
+    err);
+});
+
+// File Worker process
 fileQueue.process('makeThumbnail', async (job) => {
   // validate job data
   if (!job.data.userId) {
@@ -65,5 +77,22 @@ fileQueue.process('makeThumbnail', async (job) => {
     promises.push(generator);
   }
   await Promise.all(promises);
+  return null;
+});
+
+// User Worker Process
+userQueue.process(async (job) => {
+  if (!job.data.userId) {
+    return new Error('Missing userId');
+  }
+  // get user by id
+  const [user] = await dbUtils.getItemsByCred({
+    _id: new ObjectId(job.data.userId),
+  });
+  if (!user) {
+    return new Error('User not found');
+  }
+  // log message
+  console.log(`Welcome ${user.email}!`);
   return null;
 });

@@ -1,6 +1,8 @@
+import Bull from 'bull';
 import { dbClient } from '../utils';
 import { cache, createHash, dbUtils } from '../shared';
 
+const userQueue = new Bull('userQueue');
 /**
  * @function getMe - retrieves a user object based on object
  * @param { object } req - the incoming request object
@@ -41,9 +43,9 @@ async function getMe(req, res) {
  *
  */
 async function postNew(req, res) {
-  console.log('creating new user');
   // ensure data was sent
   if (!req.body || !req.body.email) {
+    console.log(req.body);
     return res.status(400).send({ error: 'Missing email' });
   }
   if (!req.body.password) {
@@ -65,6 +67,8 @@ async function postNew(req, res) {
     const newUser = await collection.insertOne(
       { email: req.body.email, password: hash },
     );
+    const { insertedId } = newUser;
+    await userQueue.add({ userId: insertedId.toString() });
     return res.status(201).send(
       { id: newUser.insertedId, email: req.body.email },
     );
