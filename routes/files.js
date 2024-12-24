@@ -6,7 +6,7 @@ import {
 } from '../controllers';
 
 const router = Router();
-router.use(json());
+router.use(json({ limit: '2mb' }));
 router.post('/', fileUpload);
 router.get('/', getIndex);
 router.get('/:id', getShow);
