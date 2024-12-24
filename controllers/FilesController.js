@@ -1,9 +1,12 @@
+import Bull from 'bull';
 import { v4 as uuid4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import { lookup } from 'mime-types';
 import { readFile, writeFile, mkdir } from 'fs';
 import path from 'path';
 import { dbUtils, getUserFromToken } from '../shared';
+
+const fileQueue = new Bull('fileQueue');
 
 /**
  * @function isValidType - checks if type of document is accepted
@@ -68,8 +71,11 @@ async function fileUpload(req, res) {
 
   if (req.body.parentId) {
     // obtain parent folder for file if exists and validate
-    const folder = await dbUtils
-      .getItemById(req.body.parentId, 'files');
+    const [folder] = await dbUtils
+      .getItemsByCred(
+        { _id: new ObjectId(req.body.parentId) },
+        'files',
+      );
     if (!folder) {
       return res.status(400).send({ error: 'Parent not found' });
     }
@@ -113,6 +119,7 @@ async function fileUpload(req, res) {
 
   // write content to file and return response
   return writeFile(filePath, content, (err) => {
+    console.log('writing file');
     if (err) {
       return res.status(500)
         .send({ error: err.message });
@@ -121,6 +128,18 @@ async function fileUpload(req, res) {
     dbUtils
       .addDocument(newFile, 'files')
       .then(() => {
+        console.log('newfile added:', newFile);
+        if (newFile.type === 'image') {
+          console.log('adding job to queue');
+          fileQueue.add('makeThumbnail', {
+            userId: newFile.userId.toString(),
+            fileId: newFile._id.toString(),
+          }).then((job) => {
+            console.log('new job added:', job.id);
+          }).catch((err) => {
+            console.log('adding new job failed with err:\n', err);
+          });
+        }
         res.status(201).send(updateObjectKey(newFile));
       })
       .catch((err) => res.status(500).send({ error: err.message }));
